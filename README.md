@@ -27,7 +27,7 @@ python web_app.py
 
 ### 方式二：下载可执行程序
 
-前往 [Releases](https://github.com/你的用户名/picResize/releases) 页面下载对应平台的可执行文件：
+前往 [Releases](https://github.com/soniya020621-blip/picResize/releases) 页面下载对应平台的可执行文件：
 
 - **Windows**: `picResize.exe`
 - **macOS**: `picResize`

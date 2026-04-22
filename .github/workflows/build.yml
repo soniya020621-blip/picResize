@@ -3,8 +3,8 @@ name: Build Executables
 on:
   push:
     tags:
-      - 'v*'  # 推送 tag 时触发，如: git tag v1.0.0 && git push --tags
-  workflow_dispatch:  # 允许手动触发
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -72,8 +72,11 @@ jobs:
           name: picResize-macos
           path: ./release
 
+      - name: List files
+        run: ls -la ./release
+
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ./release/*
         env:
