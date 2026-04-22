@@ -1,0 +1,80 @@
+name: Build Executables
+
+on:
+  push:
+    tags:
+      - 'v*'  # 推送 tag 时触发，如: git tag v1.0.0 && git push --tags
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: picResize-windows
+            ext: .exe
+          - os: macos-latest
+            artifact: picResize-macos
+            ext: ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build executable
+        run: pyinstaller picResize.spec --clean
+
+      - name: Prepare artifact (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          mv dist/picResize.exe dist/picResize${{ matrix.ext }}
+
+      - name: Prepare artifact (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          chmod +x dist/picResize
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/picResize${{ matrix.ext }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: picResize-windows
+          path: ./release
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: picResize-macos
+          path: ./release
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

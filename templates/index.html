@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片批量缩放工具</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {% raw %}
+    <div id="app">
+        <header class="header">
+            <h1>图片批量缩放工具</h1>
+            <p>支持多图片、多尺寸一键导出</p>
+        </header>
+
+        <main class="main">
+            <!-- 上传区域 -->
+            <section class="upload-section">
+                <div class="upload-area"
+                     :class="{'dragover': isDragging}"
+                     @dragover.prevent="isDragging = true"
+                     @dragleave="isDragging = false"
+                     @drop.prevent="handleDrop"
+                     @click="$refs.fileInput.click()">
+                    <input type="file"
+                           ref="fileInput"
+                           multiple
+                           accept="image/*"
+                           @change="handleFileSelect"
+                           hidden>
+                    <div class="upload-icon">+</div>
+                    <p>拖拽图片到此处或点击上传</p>
+                </div>
+
+                <div class="preview-grid" v-if="uploadedFiles.length">
+                    <div class="preview-item" v-for="file in uploadedFiles" :key="file.id">
+                        <img :src="file.preview" :alt="file.name">
+                        <button class="remove-btn" @click="removeFile(file.id)">&times;</button>
+                        <span class="filename">{{ file.name }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 尺寸选择区域 -->
+            <section class="size-section">
+                <h2>选择尺寸</h2>
+
+                <div class="preset-sizes">
+                    <label class="size-checkbox" v-for="size in presetSizes" :key="size.name">
+                        <input type="checkbox"
+                               :value="size"
+                               v-model="selectedSizes">
+                        <span>{{ size.name }} ({{ size.width }} x {{ size.height }})</span>
+                    </label>
+                </div>
+
+                <div class="custom-size">
+                    <h3>自定义尺寸</h3>
+                    <div class="custom-size-form">
+                        <input type="number" v-model.number="customWidth" placeholder="宽度" min="1">
+                        <span>x</span>
+                        <input type="number" v-model.number="customHeight" placeholder="高度" min="1">
+                        <button @click="addCustomSize" :disabled="!customWidth || !customHeight">添加</button>
+                    </div>
+                    <div class="custom-size-list">
+                        <span v-for="(size, index) in customSizes" :key="index" class="custom-size-tag">
+                            {{ size.width }} x {{ size.height }}
+                            <button @click="removeCustomSize(index)">&times;</button>
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 裁剪设置 -->
+            <section class="crop-section">
+                <h2>裁剪设置</h2>
+                <div class="crop-options">
+                    <label class="crop-option">
+                        <input type="radio" value="auto" v-model="cropDirection">
+                        <span>自动选择（裁剪量最小）</span>
+                    </label>
+                    <label class="crop-option">
+                        <input type="radio" value="horizontal" v-model="cropDirection">
+                        <span>优先从左右裁剪</span>
+                    </label>
+                    <label class="crop-option">
+                        <input type="radio" value="vertical" v-model="cropDirection">
+                        <span>优先从上下裁剪</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 输出设置 -->
+            <section class="output-section">
+                <h2>输出设置</h2>
+                <div class="output-options">
+                    <label class="output-option">
+                        <input type="radio" value="jpeg" v-model="outputFormat">
+                        <span>JPEG（文件较小，质量 100）</span>
+                    </label>
+                    <label class="output-option">
+                        <input type="radio" value="png" v-model="outputFormat">
+                        <span>PNG（无损画质，文件较大）</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 操作区域 -->
+            <section class="action-section">
+                <div class="selected-count">
+                    已选 {{ uploadedFiles.length }} 张图片，{{ allSizes.length }} 个尺寸
+                </div>
+
+                <button class="export-btn"
+                        @click="processImages"
+                        :disabled="!canExport || isProcessing">
+                    {{ isProcessing ? '处理中...' : '导出' }}
+                </button>
+
+                <div v-if="downloadUrl" class="download-area">
+                    <a :href="downloadUrl" class="download-link" download>下载导出文件</a>
+                </div>
+
+                <div v-if="error" class="error-msg">{{ error }}</div>
+            </section>
+        </main>
+    </div>
+    {% endraw %}
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

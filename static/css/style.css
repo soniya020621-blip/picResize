@@ -1,0 +1,362 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+    color: #333;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.header p {
+    opacity: 0.9;
+}
+
+.main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+/* 上传区域 */
+.upload-section {
+    margin-bottom: 30px;
+}
+
+.upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.upload-area:hover,
+.upload-area.dragover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.upload-icon {
+    font-size: 48px;
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.preview-item {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+}
+
+.preview-item .filename {
+    display: block;
+    padding: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.remove-btn:hover {
+    background: #ef4444;
+}
+
+/* 尺寸选择 */
+.size-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.size-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.preset-sizes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.size-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.size-checkbox:hover {
+    background: #f3f4f6;
+}
+
+.size-checkbox input {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+.size-checkbox input:checked + span {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.custom-size h3 {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.custom-size-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.custom-size-form input {
+    width: 100px;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.custom-size-form button {
+    padding: 10px 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.custom-size-form button:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+}
+
+.custom-size-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.custom-size-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.custom-size-tag button {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* 裁剪设置 */
+.crop-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.crop-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.crop-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.crop-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.crop-option:hover {
+    background: #f3f4f6;
+}
+
+.crop-option input {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+.crop-option input:checked + span {
+    color: #667eea;
+    font-weight: 500;
+}
+
+/* 输出设置 */
+.output-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.output-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.output-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.output-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.output-option:hover {
+    background: #f3f4f6;
+}
+
+.output-option input {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+.output-option input:checked + span {
+    color: #667eea;
+    font-weight: 500;
+}
+
+/* 操作区域 */
+.action-section {
+    text-align: center;
+}
+
+.selected-count {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.export-btn {
+    padding: 15px 60px;
+    font-size: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.export-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.export-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.download-area {
+    margin-top: 25px;
+}
+
+.download-link {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #10b981;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.download-link:hover {
+    background: #059669;
+}
+
+.error-msg {
+    margin-top: 15px;
+    color: #ef4444;
+}
