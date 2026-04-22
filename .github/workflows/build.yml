@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build on ${{ matrix.os }}
@@ -59,6 +62,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
 
     steps:
       - name: Download Windows artifact
@@ -72,9 +77,6 @@ jobs:
         with:
           name: picResize-macos
           path: ./release
-
-      - name: List files
-        run: ls -la ./release
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
