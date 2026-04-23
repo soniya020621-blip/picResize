@@ -8,7 +8,7 @@ createApp({
         const customWidth = ref(null);
         const customHeight = ref(null);
         const cropDirection = ref('auto');
-        const outputFormat = ref('jpeg');  // 输出格式
+        const outputFormat = ref('jpeg');
         const uploadedFiles = ref([]);
         const isDragging = ref(false);
         const isProcessing = ref(false);
@@ -73,6 +73,17 @@ createApp({
             });
         }
 
+        function clearAllFiles() {
+            if (uploadedFiles.value.length === 0) return;
+            const fileIds = uploadedFiles.value.map(f => f.id);
+            uploadedFiles.value = [];
+            fetch('/api/cleanup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileIds: fileIds })
+            });
+        }
+
         function addCustomSize() {
             if (customWidth.value && customHeight.value) {
                 customSizes.value.push({
@@ -101,6 +112,7 @@ createApp({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         fileIds: uploadedFiles.value.map(f => f.id),
+                        originalNames: uploadedFiles.value.map(f => f.name),
                         sizes: allSizes.value,
                         cropDirection: cropDirection.value,
                         outputFormat: outputFormat.value
@@ -137,6 +149,7 @@ createApp({
             handleFileSelect,
             handleDrop,
             removeFile,
+            clearAllFiles,
             addCustomSize,
             removeCustomSize,
             processImages

@@ -62,12 +62,16 @@ def upload_files():
         if file and allowed_file(file.filename):
             file_id = str(uuid.uuid4())
             ext = file.filename.rsplit('.', 1)[1].lower()
+            # 获取不含扩展名的原始文件名
+            original_name = secure_filename(file.filename)
+            original_base = original_name.rsplit('.', 1)[0] if '.' in original_name else original_name
             filename = f"{file_id}.{ext}"
             filepath = UPLOADS_DIR / filename
             file.save(filepath)
             uploaded.append({
                 'id': file_id,
                 'name': file.filename,
+                'originalBase': original_base,
                 'preview': f'/uploads/{filename}'
             })
 
@@ -83,24 +87,27 @@ def serve_upload(filename):
 def process_images():
     data = request.get_json()
     file_ids = data.get('fileIds', [])
+    original_names = data.get('originalNames', [])
     sizes = data.get('sizes', [])
     crop_direction = data.get('cropDirection', 'auto')
-    output_format = data.get('outputFormat', 'jpeg')  # jpeg 或 png
+    output_format = data.get('outputFormat', 'jpeg')
 
     if not file_ids or not sizes:
         return jsonify({'error': 'Missing fileIds or sizes'}), 400
 
-    # Find uploaded files
-    files = []
-    for fid in file_ids:
+    # Build file info mapping
+    file_info = {}
+    for i, fid in enumerate(file_ids):
+        original_name = original_names[i] if i < len(original_names) else f"image_{i}"
+        original_base = original_name.rsplit('.', 1)[0] if '.' in original_name else original_name
         for ext in ALLOWED_EXTENSIONS:
             path = UPLOADS_DIR / f"{fid}.{ext}"
             if path.exists():
-                files.append(path)
+                file_info[fid] = {'path': path, 'original_base': original_base}
                 break
 
     # Create output directory for this batch
-    batch_id = str(uuid.uuid4())
+    batch_id = str(uuid.uuid4())[:8]
     batch_dir = OUTPUT_DIR / batch_id
     batch_dir.mkdir(exist_ok=True)
 
@@ -108,22 +115,24 @@ def process_images():
     if output_format == 'png':
         file_ext = 'png'
         save_format = 'PNG'
-        save_kwargs = {'compress_level': 6}  # PNG 压缩级别 0-9
+        save_kwargs = {'compress_level': 6}
     else:
         file_ext = 'jpg'
         save_format = 'JPEG'
-        save_kwargs = {'quality': 100}  # JPEG 最高质量
+        save_kwargs = {'quality': 100}
 
     # Process images
     size_tuples = [(s['width'], s['height']) if isinstance(s, dict) else tuple(s) for s in sizes]
 
-    for src in files:
+    for fid, info in file_info.items():
+        src = info['path']
+        original_base = info['original_base']
         try:
             from PIL import Image
             with Image.open(src) as img:
                 for w, h in size_tuples:
                     out_img = reframe_image(img, w, h, crop_direction)
-                    out_name = f"{src.stem}_{w}x{h}.{file_ext}"
+                    out_name = f"{original_base}_{w}x{h}.{file_ext}"
                     out_img.save(batch_dir / out_name, format=save_format, **save_kwargs)
         except Exception as e:
             print(f"Error processing {src}: {e}")
@@ -132,21 +141,24 @@ def process_images():
     output_files = list(batch_dir.iterdir())
 
     if len(output_files) == 1:
-        # Single file: return directly without zipping
         single_file = output_files[0]
         return jsonify({
             'downloadUrl': f'/download/{batch_id}/{single_file.name}',
             'isSingleFile': True
         })
     else:
-        # Multiple files: create zip
-        zip_path = OUTPUT_DIR / f"{batch_id}.zip"
+        # Generate zip name with size info
+        size_str = '_'.join([f"{w}x{h}" for w, h in size_tuples[:3]])
+        if len(size_tuples) > 3:
+            size_str += f"_等{len(size_tuples)}尺寸"
+        zip_name = f"裁剪图片_{batch_id}_{size_str}.zip"
+        zip_path = OUTPUT_DIR / zip_name
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
             for f in output_files:
                 zf.write(f, f.name)
 
         return jsonify({
-            'downloadUrl': f'/download/{batch_id}.zip',
+            'downloadUrl': f'/download/{zip_name}',
             'isSingleFile': False
         })
 

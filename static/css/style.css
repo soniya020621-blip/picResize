@@ -109,6 +109,26 @@ body {
     background: #ef4444;
 }
 
+.clear-all-wrapper {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.clear-all-btn {
+    padding: 8px 20px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.clear-all-btn:hover {
+    background: #dc2626;
+}
+
 /* 尺寸选择 */
 .size-section {
     background: white;

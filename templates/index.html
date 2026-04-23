@@ -40,6 +40,10 @@
                         <span class="filename">{{ file.name }}</span>
                     </div>
                 </div>
+
+                <div v-if="uploadedFiles.length" class="clear-all-wrapper">
+                    <button class="clear-all-btn" @click="clearAllFiles">一键清除所有图片</button>
+                </div>
             </section>
 
             <!-- 尺寸选择区域 -->
